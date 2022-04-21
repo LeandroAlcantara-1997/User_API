@@ -8,6 +8,7 @@ import (
 
 	"github.com/facily-tech/go-scaffold/internal/container"
 	"github.com/facily-tech/go-scaffold/pkg/domains/quote/transport"
+	userTransport "github.com/facily-tech/go-scaffold/pkg/domains/user/transport"
 	"github.com/go-chi/chi/v5"
 	"github.com/go-chi/chi/v5/middleware"
 	"github.com/prometheus/client_golang/prometheus/promhttp"
@@ -26,6 +27,9 @@ func Handler(ctx context.Context, dep *container.Dependency) http.Handler {
 
 	quoteHandler := transport.NewHTTPHandler(dep.Services.Quote)
 	r.Mount("/v1/quote", quoteHandler)
+
+	userHandler := userTransport.NewHTTPHandler(dep.Services.User)
+	r.Mount("/v1/user", userHandler)
 
 	return r
 }

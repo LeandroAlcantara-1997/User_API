@@ -1,22 +1,35 @@
-# go-scaffold
 
-A simple golang scaffolding to help me to create new api projects or workers with golang on k8s.
 
-## Patterns
+# **User API com Scaffold**
 
-* Struct folder Layout: (Modern Go Application)[https://github.com/sagikazarmark/modern-go-application], (Golang Standard Layout)[https://github.com/golang-standards/project-layout];
+# **O que foi utilizado?**
 
-## Code flow
+* Persistencia de dados com biblioteca ORM GORM;
+* Persistencia de dados no PostgreSQL.
+* Arquitetura de pastas com o GoScaffold;
+* Utilização de Docker para criação de containers;
+* Desenvolvimento com Remote-Containers.
 
-![alt text](./docs/assets/architecture.drawio.svg)
+# **Como executar este projeto?**
 
-## Development
+[Tutorial de como criar o ambiente para o GoScaffold](https://github.com/LeandroAlcantara-1997/Tech-Doc/blob/master/Go-Scaffold/goscaffold.md)
 
-How to develop with this project.
+Copie o conteudo do arquivo [application.env.sample](env/application.env.sample) e crie um novo arquivo application.env com o conteudo do arquivo copiado.
 
-### VS Code and Remote Containers Plugin
+Agora só basta executar um dos seguintes comandos:
 
-1. Install [Remote - Containers](https://marketplace.visualstudio.com/items?itemName=ms-vscode-remote.remote-containers) plugin on VS Code.
-2. Copy file `./env/application.env.sample` to `./env/application.env`
-3. Reopen in Container mode: on Command Palette run `Remote-Containers: Open Folder in Container...` and select the local folder.
-4. Run the command `make hot`, for start with hot reload or on main.go file opened debug with pressing "f5".
+~~~make 
+make api
+~~~
+
+ou 
+
+~~~
+make hot
+~~~
+
+# **Como acessar ao banco?**
+
+Depois de baixar a imagem e subir o container via remote-containers, acesse o PGAdmin http://localhost:16543 (isso pode demorar um pouco), logue com as credenciais no [docker-compose.yml](build/docker-compose.yaml).
+
+Com o PGAdmin logado, crie uma nova conexão clicando em Server/Register/Server... coloque as credenciais do PostgreSQL informadas no [docker-compose.yml](build/docker-compose.yaml) e assim terá acesso a tabela user criada na applicação.

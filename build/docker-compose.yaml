@@ -25,18 +25,39 @@ services:
     command: /bin/sh -c "while sleep 1000; do :; done"
     # Runs app on the same network as the service container, allows "forwardPorts" in devcontainer.json function.
     # network_mode: service:postgres
+    depends_on:
+     - postgres-compose
+    networks:
+      - postgres-compose-network
 
-  postgres:
-    image: postgres:13-alpine
-    container_name: go-scaffold-postgres
+  postgres-compose:
+    image: postgres
     ports:
       - "5432:5432"
-    volumes:
-      - go-scaffold-postgres:/var/lib/postgresql/data
+    # volumes:
+    #   - ./postgres_db:/var/lib/postgresql/data
     environment:
-      POSTGRES_DB: goscaffold
-      POSTGRES_USER: 76F96CAB-7174-4B5E-A17F-1DB27B96B285
-      POSTGRES_PASSWORD: 1138A746-969D-46D7-813D-B135CB17A5A2
+      POSTGRES_DB: scaffold
+      POSTGRES_USER: postgres
+      POSTGRES_PASSWORD: "password"
+    networks:
+      - postgres-compose-network
+  
+  pgadmin-compose:
+    image: dpage/pgadmin4
+    environment:
+      PGADMIN_DEFAULT_EMAIL: "admin@email.com"
+      PGADMIN_DEFAULT_PASSWORD: "admin"
+    ports:
+      - "16543:80"
+    depends_on:
+      - postgres-compose
+    networks:
+      - postgres-compose-network
+
+networks: 
+  postgres-compose-network:
+    driver: bridge
 
 volumes:
   go-scaffold-postgres: {}
