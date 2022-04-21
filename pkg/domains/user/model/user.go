@@ -47,6 +47,7 @@ func NewUserFromCreateRequest(user CreateUserRequest) User {
 
 func NewUserFromUpdateRequest(user UpdateUserRequest) User {
 	return User{
+		ID:       user.ID,
 		Name:     user.Name,
 		BirthDay: user.BirthDay,
 	}

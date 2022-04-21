@@ -12,10 +12,10 @@ import (
 	"github.com/facily-tech/go-scaffold/pkg/domains/user/model"
 	"github.com/go-chi/chi/v5"
 	"github.com/go-kit/kit/transport/http"
-	"github.com/go-playground/validator"
+	"github.com/go-playground/validator/v10"
 )
 
-var validate validator.Validate
+var validate = validator.New()
 
 func NewHTTPHandler(svc user.ServiceI) stdHTTP.Handler {
 	options := []http.ServerOption{

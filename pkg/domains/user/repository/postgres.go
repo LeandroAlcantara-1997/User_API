@@ -28,10 +28,6 @@ func (p *PostgresRepository) CreateUser(ctx context.Context, user model.User) (m
 		return user, userErr.ErrNew
 	}
 
-	if tx.RowsAffected == 0 {
-		tx.Rollback()
-		return user, userErr.ErrNew
-	}
 	tx.Commit()
 	return user, nil
 }
@@ -48,12 +44,8 @@ func (p *PostgresRepository) FindUserByID(ctx context.Context, id int) (model.Us
 
 // Atualiza um user
 func (p *PostgresRepository) UpdateUser(ctx context.Context, user model.User) (model.User, error) {
-	if err := p.client.WithContext(ctx).Find(&user).Error; err != nil {
-		return user, err
-	}
-
 	tx := p.client.WithContext(ctx).Begin()
-	if err := tx.WithContext(ctx).Save(user).Error; err != nil {
+	if err := tx.WithContext(ctx).Where("id = ?", user.ID).Updates(user).Error; err != nil {
 		tx.WithContext(ctx).Rollback()
 		return user, err
 	}
