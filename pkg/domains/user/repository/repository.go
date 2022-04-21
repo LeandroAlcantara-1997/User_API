@@ -15,9 +15,10 @@ type UserRepositoryI interface {
 }
 
 type Querier interface {
-	FindByID(context.Context, string) string
+	FindUserByID(context.Context, int) (model.User, error)
 }
 
 type Execer interface {
-	CreateUser(model.User) (model.User, error)
+	CreateUser(context.Context, model.User) (model.User, error)
+	UpdateUser(context.Context, model.User) (model.User, error)
 }

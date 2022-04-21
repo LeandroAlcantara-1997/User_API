@@ -11,6 +11,7 @@ import (
 	postgresConfig "github.com/facily-tech/go-scaffold/pkg/core/postgres"
 	"github.com/facily-tech/go-scaffold/pkg/domains/quote"
 	"github.com/facily-tech/go-scaffold/pkg/domains/user"
+	"github.com/facily-tech/go-scaffold/pkg/domains/user/model"
 	userRepo "github.com/facily-tech/go-scaffold/pkg/domains/user/repository"
 	"gorm.io/driver/postgres"
 	"gorm.io/gorm"
@@ -57,6 +58,10 @@ func New(ctx context.Context) (context.Context, *Dependency, error) {
 		quote.NewRepository(cmp.Log),
 		cmp.Log,
 	)
+
+	if err != nil {
+		return nil, nil, err
+	}
 
 	userService, err := user.NewService(
 		userRepo.NewRepository(
@@ -131,10 +136,22 @@ func setupComponents(ctx context.Context, envs envs) (*components, error) {
 	if err != nil {
 		return nil, err
 	}
+
+	if err := loadTables(db); err != nil {
+		return nil, err
+	}
+
 	return &components{
 		Log:            l,
 		Tracer:         tracer,
 		PostgresClient: db,
 		// include components initialized bellow here
 	}, nil
+}
+
+func loadTables(db *gorm.DB) error {
+	if err := db.AutoMigrate(model.User{}); err != nil {
+		return err
+	}
+	return nil
 }

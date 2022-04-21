@@ -13,12 +13,15 @@ const (
 )
 
 var (
-	// ErrNew represents an error when creating a new Quote
-	ErrNew = errors.New("unable to create new quote")
+	// ErrNew represents an error when creating a new User
+	ErrNew = errors.New("unable to create new user")
 	// ErrEmptyRepository repository cannot be nil
 	ErrEmptyRepository = errors.New("empty repository")
 	// ErrTypeAssertion arises while trying to perform interface{}.(T)
 	ErrTypeAssertion = errors.New("unable to execute type assertion")
+	ErrNotFound      = errors.New("User not found")
+	ErrInvalidBody   = errors.New("Invalid body")
+	ErrInvalidPath   = errors.New("Path cannot read")
 )
 
 type errorResponse struct {

@@ -5,13 +5,17 @@ import (
 	"encoding/json"
 	"log"
 	stdHTTP "net/http"
+	"strconv"
 
 	"github.com/facily-tech/go-scaffold/pkg/domains/user"
 	userErr "github.com/facily-tech/go-scaffold/pkg/domains/user/error"
 	"github.com/facily-tech/go-scaffold/pkg/domains/user/model"
 	"github.com/go-chi/chi/v5"
 	"github.com/go-kit/kit/transport/http"
+	"github.com/go-playground/validator"
 )
+
+var validate validator.Validate
 
 func NewHTTPHandler(svc user.ServiceI) stdHTTP.Handler {
 	options := []http.ServerOption{
@@ -20,34 +24,92 @@ func NewHTTPHandler(svc user.ServiceI) stdHTTP.Handler {
 
 	postUser := http.NewServer(
 		user.PostUser(svc),
-		decodeCreateUser,
+		decodePostUser,
+		codeHTTP{200}.encodeResponse,
+		options...,
+	)
+
+	getUserByID := http.NewServer(
+		user.GetUserByID(svc),
+		decodeGetUserByID,
+		codeHTTP{200}.encodeResponse,
+		options...,
+	)
+
+	putUser := http.NewServer(
+		user.UpdateUser(svc),
+		decodePutUser,
 		codeHTTP{200}.encodeResponse,
 		options...,
 	)
 	r := chi.NewRouter()
 
-	r.Post("/create", postUser.ServeHTTP)
+	r.Post("/", postUser.ServeHTTP)
+	r.Get("/{id}", getUserByID.ServeHTTP)
+	r.Put("/{id}", putUser.ServeHTTP)
 	return r
 }
 
-func decodeCreateUser(_ context.Context, r *stdHTTP.Request) (interface{}, error) {
+// decodifica o body para CreateUserRequest
+func decodePostUser(_ context.Context, r *stdHTTP.Request) (interface{}, error) {
 	var userCreate model.CreateUserRequest
 	if err := json.NewDecoder(r.Body).Decode(&userCreate); err != nil {
 		return nil, userErr.ErrEmptyRepository
 	}
+
+	// O validate verifica se todos os campos obrigatorios declarados na struct vieram na request
+	if err := validate.Struct(userCreate); err != nil {
+		return nil, userErr.ErrInvalidBody
+	}
+
 	return userCreate, nil
 }
 
+// Pega o id na URL do endpoint e cria uma GetUserByIDRequest
+func decodeGetUserByID(_ context.Context, r *stdHTTP.Request) (interface{}, error) {
+	var (
+		userGet model.GetUserByIDRequest
+		err     error
+	)
+	if userGet.ID, err = strconv.Atoi(chi.URLParam(r, "id")); err != nil {
+		return nil, userErr.ErrInvalidPath
+	}
+
+	return userGet, err
+}
+
+// decodifica um UpdateUserRequest
+func decodePutUser(_ context.Context, r *stdHTTP.Request) (interface{}, error) {
+	var (
+		userUpdate model.UpdateUserRequest
+		err        error
+	)
+	if err := json.NewDecoder(r.Body).Decode(&userUpdate); err != nil {
+		return nil, userErr.ErrInvalidBody
+	}
+
+	if userUpdate.ID, err = strconv.Atoi(chi.URLParam(r, "id")); err != nil {
+		return nil, userErr.ErrInvalidPath
+	}
+	if err = validate.Struct(userUpdate); err != nil {
+		return nil, err
+	}
+	return userUpdate, nil
+}
+
+// Struct que vai definir o status HTTP de reposta se tudo der certo
 type codeHTTP struct {
 	int
 }
 
+// O codeHTTP implementa uma função de resposta da request
 func (c codeHTTP) encodeResponse(_ context.Context, w stdHTTP.ResponseWriter, input interface{}) error {
 	w.Header().Set("Content-type", "application/json; charset=UTF-8")
 	w.WriteHeader(c.int)
 	return json.NewEncoder(w).Encode(input)
 }
 
+// O erroHandler é chamado caso algo dê errado e ele é chamado no options na função de NewHTTPHandler
 func errorHandler(_ context.Context, err error, w stdHTTP.ResponseWriter) {
 	resp, code := userErr.RESTErrorBussines.ErrorProcess(err)
 

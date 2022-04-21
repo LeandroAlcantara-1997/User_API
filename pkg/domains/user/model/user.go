@@ -2,7 +2,7 @@ package model
 
 import "gorm.io/gorm"
 
-// É a única persistida no banco!
+// A struct User é a struct raiz e é a única persistida no banco!
 type User struct {
 	gorm.Model
 	ID       int `gorm:"primaryKey autoIncrement:true"`
@@ -12,33 +12,49 @@ type User struct {
 
 // Structs que vem via request
 type CreateUserRequest struct {
-	ID       int    `json:"id" `
+	ID       int    `json:"id,omitempty"`
 	Name     string `json:"name" validate:"required"`
-	BirthDay string `json:"birthday"`
+	BirthDay string `json:"birthday" validate:"required"`
 }
 
 type UpdateUserRequest struct {
-	ID       int
-	Name     string
-	BirthDay string
+	ID       int    `json:"id" validate:"required"`
+	Name     string `json:"name" validate:"required"`
+	BirthDay string `json:"birthday" validate:"required"`
 }
 type GetUserByIDRequest struct {
+	ID int `json:"id" validate:"required"`
+}
+
+type DeleteUserByIDRequest struct {
 	ID string `json:"id" validate:"required"`
 }
 
-type DeleteByIDRequest struct {
-	ID string `json:"id"`
+// Struct de resposta da request
+type UserResponse struct {
+	ID       int    `json:"id"`
+	Name     string `json:"name"`
+	BirthDay string `json:"birthday"`
 }
 
-func NewUserFromCreate(user CreateUserRequest) User {
+// Construtores para fazer a conversao para um user
+func NewUserFromCreateRequest(user CreateUserRequest) User {
 	return User{
 		Name:     user.Name,
 		BirthDay: user.BirthDay,
 	}
 }
 
-func NewUserFromUpdate(user UpdateUserRequest) User {
+func NewUserFromUpdateRequest(user UpdateUserRequest) User {
 	return User{
+		Name:     user.Name,
+		BirthDay: user.BirthDay,
+	}
+}
+
+func NewUserResponse(user User) UserResponse {
+	return UserResponse{
+		ID:       user.ID,
 		Name:     user.Name,
 		BirthDay: user.BirthDay,
 	}

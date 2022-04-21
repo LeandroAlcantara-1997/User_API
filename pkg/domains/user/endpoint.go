@@ -24,3 +24,35 @@ func PostUser(svc ServiceI) endpoint.Endpoint {
 		return resp, nil
 	}
 }
+
+func GetUserByID(svc ServiceI) endpoint.Endpoint {
+	return func(ctx context.Context, request interface{}) (interface{}, error) {
+		req, ok := request.(model.GetUserByIDRequest)
+		if !ok {
+			return nil, errors.Wrap(userErr.ErrTypeAssertion, "cannot convert request-> GetUserByIDRequest")
+		}
+
+		resp, err := svc.FindUserByID(ctx, req.ID)
+		if err != nil {
+			return nil, err
+		}
+
+		return resp, nil
+	}
+}
+
+func UpdateUser(svc ServiceI) endpoint.Endpoint {
+	return func(ctx context.Context, request interface{}) (interface{}, error) {
+		req, ok := request.(model.UpdateUserRequest)
+		if !ok {
+			return nil, errors.Wrap(userErr.ErrTypeAssertion, "cannot convert request-> UpdateUserRequest")
+		}
+
+		resp, err := svc.UpdateUser(ctx, req)
+		if err != nil {
+			return nil, err
+		}
+
+		return resp, nil
+	}
+}
