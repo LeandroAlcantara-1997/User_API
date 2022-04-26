@@ -56,3 +56,19 @@ func UpdateUser(svc ServiceI) endpoint.Endpoint {
 		return resp, nil
 	}
 }
+
+func DeleteUser(svc ServiceI) endpoint.Endpoint {
+	return func(ctx context.Context, request interface{}) (interface{}, error) {
+		req, ok := request.(model.DeleteUserByIDRequest)
+		if !ok {
+			return nil, errors.Wrap(userErr.ErrTypeAssertion, "cannot convert request-> UpdateUserRequest")
+		}
+
+		err := svc.DeleteUserByID(ctx, req)
+		if err != nil {
+			return nil, err
+		}
+
+		return nil, nil
+	}
+}

@@ -21,4 +21,5 @@ type Querier interface {
 type Execer interface {
 	CreateUser(context.Context, model.User) (model.User, error)
 	UpdateUser(context.Context, model.User) (model.User, error)
+	DeleteUser(context.Context, int) error
 }

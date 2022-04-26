@@ -42,11 +42,19 @@ func NewHTTPHandler(svc user.ServiceI) stdHTTP.Handler {
 		codeHTTP{200}.encodeResponse,
 		options...,
 	)
+
+	deleteUser := http.NewServer(
+		user.DeleteUser(svc),
+		decodeDelete,
+		codeHTTP{200}.encodeResponse,
+		options...,
+	)
 	r := chi.NewRouter()
 
 	r.Post("/", postUser.ServeHTTP)
 	r.Get("/{id}", getUserByID.ServeHTTP)
 	r.Put("/{id}", putUser.ServeHTTP)
+	r.Delete("/{id}", deleteUser.ServeHTTP)
 	return r
 }
 
@@ -95,6 +103,18 @@ func decodePutUser(_ context.Context, r *stdHTTP.Request) (interface{}, error) {
 		return nil, err
 	}
 	return userUpdate, nil
+}
+
+func decodeDelete(_ context.Context, r *stdHTTP.Request) (interface{}, error) {
+	var (
+		userDelete model.DeleteUserByIDRequest
+		err        error
+	)
+	if userDelete.ID, err = strconv.Atoi(chi.URLParam(r, "id")); err != nil {
+		return nil, err
+	}
+
+	return userDelete, nil
 }
 
 // Struct que vai definir o status HTTP de reposta se tudo der certo

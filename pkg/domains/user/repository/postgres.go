@@ -52,3 +52,18 @@ func (p *PostgresRepository) UpdateUser(ctx context.Context, user model.User) (m
 	tx.WithContext(ctx).Commit()
 	return user, nil
 }
+
+func (p *PostgresRepository) DeleteUser(ctx context.Context, id int) error {
+	var user model.User
+	if err := p.client.WithContext(ctx).Where(model.User{ID: id}).First(&user).Error; err != nil {
+		return err
+	}
+	tx := p.client.WithContext(ctx).Begin()
+	if err := tx.WithContext(ctx).Where("id = ?", id).Delete(&model.User{}).Error; err != nil {
+		tx.WithContext(ctx).Rollback()
+		return err
+	}
+
+	tx.WithContext(ctx).Commit()
+	return nil
+}

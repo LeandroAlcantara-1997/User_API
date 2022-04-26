@@ -27,7 +27,7 @@ type GetUserByIDRequest struct {
 }
 
 type DeleteUserByIDRequest struct {
-	ID string `json:"id" validate:"required"`
+	ID int `json:"id" validate:"required"`
 }
 
 // Struct de resposta da request

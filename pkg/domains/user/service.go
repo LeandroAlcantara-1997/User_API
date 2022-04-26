@@ -15,6 +15,7 @@ type ServiceI interface {
 	FindUserByID(context.Context, int) (model.UserResponse, error)
 	CreateUser(context.Context, model.CreateUserRequest) (model.UserResponse, error)
 	UpdateUser(context.Context, model.UpdateUserRequest) (model.UserResponse, error)
+	DeleteUserByID(context.Context, model.DeleteUserByIDRequest) error
 }
 
 // A struct Service deve implementar as funções da interface ServiceI
@@ -59,4 +60,13 @@ func (s *Service) UpdateUser(ctx context.Context, user model.UpdateUserRequest) 
 		return model.NewUserResponse(userUpdate), err
 	}
 	return model.NewUserResponse(userUpdate), err
+}
+
+// Deleta user
+func (s *Service) DeleteUserByID(ctx context.Context, userDelete model.DeleteUserByIDRequest) error {
+	if err := s.repository.DeleteUser(ctx, userDelete.ID); err != nil {
+		return err
+	}
+
+	return nil
 }
